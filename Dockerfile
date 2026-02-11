@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim AS build-env
+FROM debian:bookworm-slim as build-env
 ENV DEBIAN_FRONTEND=noninteractive
 ARG TESTS
 ARG SOURCE_COMMIT
@@ -29,9 +29,12 @@ RUN curl -L -o /tmp/busybox.tar.bz2 https://busybox.net/downloads/busybox-${BUSY
 WORKDIR /build/env2cfg
 COPY ./env2cfg/ /build/env2cfg/
 RUN if [ "${TESTS:-true}" = true ]; then \
-    pip3 install tox \
-    && tox \
-    ; \
+        apt-get update && apt-get install -y python3-venv && \
+        python3 -m venv /venv && \
+        . /venv/bin/activate && \
+        pip install --upgrade pip && \
+        pip install tox && \
+        tox; \
     fi
 RUN python3 setup.py bdist --format=gztar
 
@@ -93,7 +96,7 @@ RUN mkdir -p /usr/local/etc/supervisor/conf.d/ \
 RUN echo "${SOURCE_COMMIT:-unknown}" > /usr/local/etc/git-commit.HEAD
 
 
-FROM --platform=linux/386 debian:buster-slim AS i386-libs
+FROM --platform=linux/386 debian:bookworm-slim as i386-libs
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get -y --no-install-recommends install \
@@ -104,7 +107,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 ENV DEBIAN_FRONTEND=noninteractive
 COPY --from=build-env /usr/local/ /usr/local/
 COPY --from=i386-libs /lib/ld-linux.so.2 /lib/ld-linux.so.2
