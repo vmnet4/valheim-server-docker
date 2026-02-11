@@ -1,18 +1,39 @@
 services:
-  app:
+  valheim-server-family:
     build:
       context: .
+      args:
+        TESTS: "false"
       dockerfile: Dockerfile
     container_name: valheim-server-family
     volumes:
-      - /home/hi-tech/valheim-server-family/config:/config
-      - /home/hi-tech//valheim-server-family/data:/opt/valheim
+      - /home/hi-tech/valheim-server/valheim-server-family/config:/config
+      - /home/hi-tech/valheim-server/valheim-server-family/data:/opt/valheim
     ports:
-      - "2456-2458:2456-2458/udp"
-      - "9001:9001/tcp"
-      - "8005:80/tcp"
+      - "3456-3458:2456-2458/udp"
+      - "9003:9001/tcp"
+      - "8003:80/tcp"
     env_file:
-      - /home/hi-tech/valheim-server-family/valheim.env
-   restart: always
+      - /home/hi-tech/valheim-server/valheim-server-family/valheim.env
+    restart: always
+    stop_grace_period: 2m
+
+  valheim-server-legacy:
+    build:
+      context: .
+      args:
+        TESTS: "false"
+      dockerfile: Dockerfile
+    container_name: valheim-server-legacy
+    volumes:
+      - /home/hi-tech/valheim-server/valheim-server-legacy/config:/config
+      - /home/hi-tech/valheim-server/valheim-server-legacy/data:/opt/valheim
+    ports:
+      - "8456-8458:2456-2458/udp"
+      - "9008:9001/tcp"
+      - "8008:80/tcp"
+    env_file:
+      - /home/hi-tech/valheim-server/valheim-server-legacy/valheim.env
+    restart: unless-stopped
     stop_grace_period: 2m
 
