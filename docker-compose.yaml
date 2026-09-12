@@ -1,15 +1,20 @@
 services:
-  valheim:
-    image: ghcr.io/vmnet4/valheim-server-img/valheim-server
-    cap_add:
-      - sys_nice
+  valheim-server-friends:
+    build:
+      context: .
+      args:
+        TESTS: "false"
+      dockerfile: Dockerfile
+    container_name: valheim-server-friends
     volumes:
-      - $HOME/valheim-server-family/config:/config
-      - $HOME/valheim-server-family/data:/opt/valheim
+      - /home/hi-tech/valheim-server/valheim-server-friends/config:/config
+      - /home/hi-tech/valheim-server/valheim-server-friends/data:/opt/valheim
     ports:
       - "2456-2458:2456-2458/udp"
-      - "9001:9001/tcp"
+      - "9003:9001/tcp"
+      - "8003:80/tcp"
     env_file:
-      - $HOME/valheim-server-family/valheim.env
-    restart: always
+      - /home/hi-tech/valheim-server/valheim-server-friends/valheim.env
+    restart: unless-stopped
     stop_grace_period: 2m
+
